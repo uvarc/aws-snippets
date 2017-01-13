@@ -1,4 +1,5 @@
 import boto3
+import botocore
 
 # This snippet performs a file open() in Python and then pushes that into the boto3 s3.put_object call
 # Includes error handling.
@@ -23,7 +24,7 @@ def upload_image():
         Key=s3keyname,
         ContentType=contenttype,
         # IMPORTANT -- the ACL setting determines the security settings for your object
-        # This can be 'public-read', 'private' or 
+        # This can be 'public-read', 'private' or specified to other IAM targets.
         ACL='public-read'
         )
     except Exception, e:

@@ -6,7 +6,6 @@ import boto3
 # This is an example SQS queue url. Found in details of SQS queue:
 queueurl = 'https://sqs.us-east-1.amazonaws.com/474683445819/AWS-ElasticMapReduce-j-3NJO2WEHD83NR'
 
-
 # Create the SQS client for boto3 and build message to a queue.
 # Messages must have a BODY, and can then OPTIONALLY contain attributes of data types STRING, NUMBER, or BINARY.
 # Total size of the message must be under 256k.

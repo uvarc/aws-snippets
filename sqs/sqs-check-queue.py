@@ -41,3 +41,7 @@ def check_sqs_queue():
     handle = req['ReceiptHandle']
     jobid = req['MessageAttributes']['JobID']['StringValue']
     times = req['MessageAttributes']['Times']['StringValue']
+    print(str(jobid))
+    print(str(times))
+
+get_queue_count()
