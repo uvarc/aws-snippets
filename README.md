@@ -1,7 +1,7 @@
 # aws-snippets
 A collection of snippets for interacting with AWS via Python/boto3
 
-## Installations:
+## Installations
 `pip install boto3`
 
 `pip install botocore` - Necessary for error handling
@@ -13,9 +13,9 @@ A collection of snippets for interacting with AWS via Python/boto3
 ## Credentials
 boto3 can make use of (at least) four levels of authentication:
 
-1. Hard-coded key/secret key within your application (NEVER use in production).
+* Hard-coded key/secret key within your application (NEVER use in production).
 
-```
+```python
 import boto3
 client = boto3.client(
     's3',
@@ -25,25 +25,25 @@ client = boto3.client(
 )
 ```
 
-2. An application or server-level config file containing the key/secret key. Useful especially if you have multiple account profiles to juggle (EXCLUDE this from git).
+* An application or server-level config file containing the key/secret key. Useful especially if you have multiple account profiles to juggle (EXCLUDE this from git).
 
-```
+```shell
 # Example ~/.aws/config file.
 [default]
 aws_access_key_id=foo
 aws_secret_access_key=bar
 ```
 
-3. Environment variables. Simply populate these two vars for your shell (Good for local development off of EC2).
+* Environment variables. Simply populate these two vars for your shell (Good for local development off of EC2).
 
+```shell
+AWS_ACCESS_KEY_ID=xxxxxxxxxxxxxxx
+AWS_SECRET_ACCESS_KEY=zzzzzzzzzzzzzzzzzzzzzzzzzzz
 ```
-AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY
-```
 
-4. An IAM role specifically tailored to the EC2 instance running the code (Best practice).
+* An IAM role specifically tailored to the EC2 instance running the code (Best practice).
 
-The Python snippets in this collection assume you are using option 2, 3 or 4 for authentication. More information about their setup can be found at:
+The Python snippets in this collection assume you are using the latter three options for authentication. More information about their setup can be found at:
 
 http://boto3.readthedocs.io/en/latest/guide/configuration.html
 
