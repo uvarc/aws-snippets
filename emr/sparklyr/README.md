@@ -1,6 +1,6 @@
 # `sparklyr` on Amazon EMR
 
-This repo contains:
+This repo contains code and documentation adapted from the [AWS Big Data blog](https://aws.amazon.com/blogs/big-data/running-sparklyr-rstudios-r-interface-to-spark-on-amazon-emr/) ... it includes:
 
 1. Shell script to create Amazon EMR cluster (with `sparklyr` and RStudio server installed) via AWS CLI 
 2. Local benchmarking script
