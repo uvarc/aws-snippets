@@ -28,3 +28,5 @@ response = client.synthesize_speech(
 Read Eric Hammond's great introduction to programmatically sending dynamic phone messages to users by using Polly and Twilio.
 
 https://alestic.com/2016/11/amazon-polly-text-to-speech/
+
+A working example of Eric's demo can be found in `call-me.sh`.
