@@ -7,8 +7,9 @@ This repo contains code and documentation adapted from the [AWS Big Data blog](h
 3. Cluster benchmarking script
 4. General `sparklyr` example script
 
-To launch the cluster described in the shell script use `. emr.sh`. 
+To launch the cluster described in the shell script use `. emr.sh`. You'll be prompted for some information about the cluster you would like to install including:
 
-**NB** You will need to replace `{YOURKEY}` with the name of your AWS key. You may also want to adjust the size and number of nodes in the cluster.
-
+- Instance type for the worker nodes
+- Number of worker nodes
+- Name of your AWS key
 
