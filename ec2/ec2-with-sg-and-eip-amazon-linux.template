@@ -120,7 +120,12 @@
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
                       { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
-        "Tags" : [ {"Key" : "Project", "Value" : "DsiCapstone"}]
+        "Tags" : [ {"Key" : "Project", "Value" : "DsiCapstone"}],
+        "UserData": {"Fn::Base64": {"Fn::Join" : ["", [
+            "#!/bin/bash -e\n",
+            "yum update\n",
+            "yum -y upgrade\n",
+        ]]}}
       }
     },
 

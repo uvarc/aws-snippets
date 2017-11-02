@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "AWS CloudFormation Template based on EC2Instance-With-Security-Group: Creates an Amazon EC2 instance running the Ubuntu Linux AMI with an EIP attached. This stack also creates an EC2 security group for the instance for SSH access, including CIDR blocks for access from UVA Grounds.",
+  "Description" : "This template creates an Ubuntu EC2 instance with a security group and Elastic IP. Includes UVA Grounds CIDR blocks for SSH access.",
 
   "Parameters" : {
     "KeyName": {
@@ -29,80 +29,6 @@
    }
   },
 
-  "Mappings" : {
-    "AWSInstanceType2Arch" : {
-      "t1.micro"    : { "Arch" : "PV64"   },
-      "t2.nano"     : { "Arch" : "HVM64"  },
-      "t2.micro"    : { "Arch" : "HVM64"  },
-      "t2.small"    : { "Arch" : "HVM64"  },
-      "t2.medium"   : { "Arch" : "HVM64"  },
-      "t2.large"    : { "Arch" : "HVM64"  },
-      "m3.medium"   : { "Arch" : "HVM64"  },
-      "m3.large"    : { "Arch" : "HVM64"  },
-      "m3.xlarge"   : { "Arch" : "HVM64"  },
-      "m3.2xlarge"  : { "Arch" : "HVM64"  },
-      "m4.large"    : { "Arch" : "HVM64"  },
-      "m4.xlarge"   : { "Arch" : "HVM64"  },
-      "m4.2xlarge"  : { "Arch" : "HVM64"  },
-      "m4.4xlarge"  : { "Arch" : "HVM64"  },
-      "c3.large"    : { "Arch" : "HVM64"  },
-      "c3.xlarge"   : { "Arch" : "HVM64"  },
-      "c3.2xlarge"  : { "Arch" : "HVM64"  },
-      "c3.4xlarge"  : { "Arch" : "HVM64"  },
-      "c4.large"    : { "Arch" : "HVM64"  },
-      "c4.xlarge"   : { "Arch" : "HVM64"  },
-      "c4.2xlarge"  : { "Arch" : "HVM64"  },
-      "c4.4xlarge"  : { "Arch" : "HVM64"  },
-      "r3.large"    : { "Arch" : "HVM64"  },
-      "r3.xlarge"   : { "Arch" : "HVM64"  },
-      "r3.2xlarge"  : { "Arch" : "HVM64"  },
-      "r3.4xlarge"  : { "Arch" : "HVM64"  },
-      "d2.xlarge"   : { "Arch" : "HVM64"  },
-      "d2.2xlarge"  : { "Arch" : "HVM64"  },
-      "d2.4xlarge"  : { "Arch" : "HVM64"  }
-    },
-
-    "AWSInstanceType2NATArch" : {
-      "t1.micro"    : { "Arch" : "NATPV64"   },
-      "t2.nano"     : { "Arch" : "NATHVM64"  },
-      "t2.micro"    : { "Arch" : "NATHVM64"  },
-      "t2.small"    : { "Arch" : "NATHVM64"  },
-      "t2.medium"   : { "Arch" : "NATHVM64"  },
-      "t2.large"    : { "Arch" : "NATHVM64"  },
-      "m3.medium"   : { "Arch" : "NATHVM64"  },
-      "m3.large"    : { "Arch" : "NATHVM64"  },
-      "m3.xlarge"   : { "Arch" : "NATHVM64"  },
-      "m3.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "m4.large"    : { "Arch" : "NATHVM64"  },
-      "m4.xlarge"   : { "Arch" : "NATHVM64"  },
-      "m4.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "m4.4xlarge"  : { "Arch" : "NATHVM64"  },
-      "c3.large"    : { "Arch" : "NATHVM64"  },
-      "c3.xlarge"   : { "Arch" : "NATHVM64"  },
-      "c3.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "c3.4xlarge"  : { "Arch" : "NATHVM64"  },
-      "c4.large"    : { "Arch" : "NATHVM64"  },
-      "c4.xlarge"   : { "Arch" : "NATHVM64"  },
-      "c4.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "c4.4xlarge"  : { "Arch" : "NATHVM64"  },
-      "r3.large"    : { "Arch" : "NATHVM64"  },
-      "r3.xlarge"   : { "Arch" : "NATHVM64"  },
-      "r3.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "r3.4xlarge"  : { "Arch" : "NATHVM64"  },
-      "d2.xlarge"   : { "Arch" : "NATHVM64"  },
-      "d2.2xlarge"  : { "Arch" : "NATHVM64"  },
-      "d2.4xlarge"  : { "Arch" : "NATHVM64"  }
-    },
-
-    "AWSRegionArch2AMI" : {
-      "us-east-1"        : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-b391b9c8", "HVMG2" : "NOT_SUPPORTED"},
-      "us-east-2"        : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-a7aa8ac2", "HVMG2" : "NOT_SUPPORTED"},
-      "us-west-1"        : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-8edbf0ee", "HVMG2" : "NOT_SUPPORTED"},
-      "us-west-2"        : {"PV64" : "ami-7f77b31f", "HVM64" : "ami-efd0428f", "HVMG2" : "ami-54d44234"}
-    }
-
-  },
-
   "Resources" : {
 
     "MyEIP" : {
@@ -118,9 +44,13 @@
         "InstanceType" : { "Ref" : "InstanceType" },
         "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
         "KeyName" : { "Ref" : "KeyName" },
-        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                      { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
-        "Tags" : [ {"Key" : "Project", "Value" : "DsiCapstone"}]
+        "ImageId" : "ami-cd0f5cb6",
+        "Tags" : [ {"Key" : "Project", "Value" : "DsiCapstone"}],
+        "UserData": {"Fn::Base64": {"Fn::Join" : ["", [
+            "#!/bin/bash -e\n",
+            "export DEBIAN_FRONTEND=noninteractive\n",
+            "apt-get update && apt-get -o Dpkg::Options::=\"--force-confold\" upgrade -q -y --force-yes && apt-get -o Dpkg::Options::=\"--force-confold\" dist-upgrade -q -y --force-yes\n"
+        ]]}}
       }
     },
 
