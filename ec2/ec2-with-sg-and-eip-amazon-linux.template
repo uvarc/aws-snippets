@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "AWS CloudFormation Template based on EC2Instance-With-Security-Group: Creates an Amazon EC2 instance running the Amazon Linux AMI. The AMI is chosen based on the region in which the stack is run. This stack creates an EC2 security group for the instance for SSH access.",
+  "Description" : "AWS CloudFormation Template based on EC2Instance-With-Security-Group: Creates an Amazon EC2 instance running the Amazon Linux AMI with an EIP attached. This stack also creates an EC2 security group for the instance for SSH access, including CIDR blocks for access from UVA Grounds.",
 
   "Parameters" : {
     "KeyName": {
@@ -19,13 +19,13 @@
     },
 
     "SSHLocation" : {
-      "Description" : "The IP address range that can be used to SSH to the EC2 instances",
+      "Description" : "The IP address range that can be used to SSH to the EC2 instances. Do not set this to 0.0.0.0/0. Instead, look up your current IP and add /32 to it.",
       "Type": "String",
       "MinLength": "9",
       "MaxLength": "18",
-      "Default": "0.0.0.0/0",
+      "Default": "254.254.254.254/32",
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
-      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x."
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x"
    }
   },
 
@@ -104,6 +104,14 @@
   },
 
   "Resources" : {
+
+    "MyEIP" : {
+      "Type" : "AWS::EC2::EIP",
+      "Properties" : {
+         "InstanceId" : { "Ref" : "EC2Instance" }
+      }
+    },
+
     "EC2Instance" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
@@ -111,7 +119,8 @@
         "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                      { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] }
+                      { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "Tags" : [ {"Key" : "Project", "Value" : "DsiCapstone"}]
       }
     },
 
@@ -119,14 +128,58 @@
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "GroupDescription" : "Enable SSH access via port 22",
+        "Tags" : [ {"Key" : "Project", "Value" : "DsiCapstone"}],
         "SecurityGroupIngress" : [ {
+          "Description" : "Custom CIDR set at creation",
           "IpProtocol" : "tcp",
           "FromPort" : "22",
           "ToPort" : "22",
           "CidrIp" : { "Ref" : "SSHLocation"}
         } ]
       }
-    }
+    },
+
+    "UVAIngress1": {
+        "Type": "AWS::EC2::SecurityGroupIngress",
+        "Properties": {
+            "GroupName": {
+                "Ref": "InstanceSecurityGroup"
+            },
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp" : "199.111.0.0/16",
+            "Description" : "UVA Campus"
+        }
+     },
+
+    "UVAIngress2": {
+        "Type": "AWS::EC2::SecurityGroupIngress",
+        "Properties": {
+            "GroupName": {
+                "Ref": "InstanceSecurityGroup"
+            },
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp" : "128.143.0.0/16",
+            "Description" : "UVA Campus"
+        }
+     },
+
+    "UVAIngress3": {
+        "Type": "AWS::EC2::SecurityGroupIngress",
+        "Properties": {
+            "GroupName": {
+                "Ref": "InstanceSecurityGroup"
+            },
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp" : "137.54.0.0/16",
+            "Description" : "UVA Campus"
+        }
+     }
 
   },
 
