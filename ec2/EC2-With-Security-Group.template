@@ -11,7 +11,7 @@
     },
 
     "InstanceType" : {
-      "Description" : "WebServer EC2 instance type",
+      "Description" : "EC2 instance type",
       "Type" : "String",
       "Default" : "t2.small",
       "AllowedValues" : [ "t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "m3.medium", "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "c3.large", "c3.xlarge", "c3.2xlarge", "c4.large", "c4.xlarge", "c4.2xlarge", "r3.large", "r3.xlarge", "r3.2xlarge", "d2.xlarge", "d2.2xlarge", "d2.4xlarge"],
@@ -95,10 +95,10 @@
     },
 
     "AWSRegionArch2AMI" : {
-      "us-east-1"        : {"PV64" : "ami-2a69aa47", "HVM64" : "ami-6869aa05", "HVMG2" : "ami-1f12e965"},
+      "us-east-1"        : {"PV64" : "ami-7a3dd76c", "HVM64" : "ami-0b33d91d", "HVMG2" : "NOT_SUPPORTED"},
+      "us-east-2"        : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-c55673a0", "HVMG2" : "NOT_SUPPORTED"},
       "us-west-2"        : {"PV64" : "ami-7f77b31f", "HVM64" : "ami-7172b611", "HVMG2" : "ami-5c9b6124"},
-      "us-west-1"        : {"PV64" : "ami-a2490dc2", "HVM64" : "ami-31490d51", "HVMG2" : "ami-7291a112"},
-      "us-east-2"        : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-f6035893", "HVMG2" : "NOT_SUPPORTED"}
+      "us-west-1"        : {"PV64" : "ami-a2490dc2", "HVM64" : "ami-31490d51", "HVMG2" : "ami-7291a112"}
     }
 
   },
@@ -111,7 +111,7 @@
         "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] }
+                      { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] }
       }
     },
 
@@ -125,13 +125,6 @@
           "ToPort" : "22",
           "CidrIp" : { "Ref" : "SSHLocation"}
         } ]
-      }
-    }
-
-    "MyEIP" : {
-      "Type" : "AWS::EC2::EIP",
-      "Properties" : {
-          "InstanceId" : { "Ref" : "logical name of an AWS::EC2::Instance resource" }
       }
     }
 
