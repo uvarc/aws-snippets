@@ -26,7 +26,14 @@
       "Default": "254.254.254.254/32",
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
       "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x"
-   }
+    },
+
+    "S3BucketName" : {
+      "Description" : "Give a unique name to your S3 bucket. Do not use spaces or special characters.",
+      "Type": "String",
+      "MinLength": "6",
+      "MaxLength": "20"
+    }
   },
 
   "Mappings" : {
@@ -105,6 +112,52 @@
 
   "Resources" : {
 
+    "S3Role": {
+       "Type": "AWS::IAM::Role",
+       "Properties": {
+          "AssumeRolePolicyDocument": {
+             "Version" : "2012-10-17",
+             "Statement": [ {
+                "Effect": "Allow",
+                "Principal": {
+                   "Service": [ "ec2.amazonaws.com" ]
+                },
+                "Action": [ "sts:AssumeRole" ]
+             } ]
+          },
+          "Path": "/",
+          "Policies": [ {
+             "PolicyName": "s3owner",
+             "PolicyDocument": {
+                "Version" : "2012-10-17",
+                "Statement": [ {
+                   "Effect": "Allow",
+                   "Action": "*",
+                   "Resource": "arn:aws:s3:::*"
+                } ]
+             }
+           } ]
+        }
+    },
+
+    "RootInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+          "Path": "/",
+          "Roles": [ {
+             "Ref": "S3Role"
+          } ]
+       }
+    },
+
+    "S3Bucket": {
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+            "BucketName" : {"Ref":"S3BucketName"}
+        },
+        "DeletionPolicy": "Retain"
+    },
+
     "MyEIP" : {
       "Type" : "AWS::EC2::EIP",
       "Properties" : {
@@ -117,6 +170,7 @@
       "Properties" : {
         "InstanceType" : { "Ref" : "InstanceType" },
         "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
+        "IamInstanceProfile" : { "Ref" : "RootInstanceProfile" },
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
                       { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
