@@ -79,12 +79,13 @@
     "S3Bucket": {
         "Type": "AWS::S3::Bucket",
         "Properties": {
-            "BucketName" : {"Ref":"S3BucketName"}
+            "BucketName" : {"Ref":"S3BucketName"},
+            "VersioningConfiguration": "Enabled"
         },
         "DeletionPolicy": "Retain"
     },
 
-    "MyEIP" : {
+    "AttachEIP" : {
       "Type" : "AWS::EC2::EIP",
       "Properties" : {
          "InstanceId" : { "Ref" : "EC2Instance" }
