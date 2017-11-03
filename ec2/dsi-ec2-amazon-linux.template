@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "AWS CloudFormation Template based on EC2Instance-With-Security-Group: Creates an Amazon EC2 instance running the Amazon Linux AMI with an EIP attached. This stack also creates an EC2 security group for the instance for SSH access, including CIDR blocks for access from UVA Grounds.",
+  "Description" : "Creates an Amazon EC2 instance running the Amazon Linux AMI with an EIP attached. This stack also creates an EC2 security group for the instance for SSH access, including CIDR blocks for access from UVA Grounds.",
 
   "Parameters" : {
     "KeyName": {
