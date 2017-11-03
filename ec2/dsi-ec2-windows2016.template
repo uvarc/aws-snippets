@@ -1,11 +1,11 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "This template creates an Ubuntu EC2 instance with a security group and Elastic IP. Includes UVA Grounds CIDR blocks for SSH access.",
+  "Description" : "This template creates a Windows Server 2016 EC2 instance with a security group and Elastic IP. Includes UVA Grounds CIDR blocks for decrypting your administrator password.",
 
   "Parameters" : {
     "KeyName": {
-      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Description" : "Name of an existing EC2 KeyPair to decrypt the admin password.",
       "Type": "AWS::EC2::KeyPair::KeyName",
       "ConstraintDescription" : "Must be the name of an existing EC2 KeyPair."
     },
@@ -18,8 +18,8 @@
       "ConstraintDescription" : "Must be a valid EC2 instance type."
     },
 
-    "SSHLocation" : {
-      "Description" : "The IP address range that can be used to SSH to the EC2 instances. Do not set this to 0.0.0.0/0. Instead, look up your current IP and add /32 to it.",
+    "RDPLocation" : {
+      "Description" : "The IP address range that can be used to RDP to the EC2 instances. Do not set this to 0.0.0.0/0. Instead, look up your current IP and add /32 to it.",
       "Type": "String",
       "MinLength": "9",
       "MaxLength": "18",
@@ -100,31 +100,25 @@
         "IamInstanceProfile" : { "Ref" : "RootInstanceProfile" },
         "DisableApiTermination" : "TRUE",
         "KeyName" : { "Ref" : "KeyName" },
-        "ImageId" : "ami-cd0f5cb6",
+        "ImageId" : "ami-e3bb7399",
         "Tags" : [
             {"Key" : "Project", "Value" : "DsiCapstone"},
             {"Key" : "Name", "Value" : "DSI-Instance"}
-        ],
-        "UserData": {"Fn::Base64": {"Fn::Join" : ["", [
-            "#!/bin/bash -e\n",
-            "export DEBIAN_FRONTEND=noninteractive\n",
-            "apt-get update && apt-get -o Dpkg::Options::=\"--force-confold\" upgrade -q -y --force-yes && apt-get -o Dpkg::Options::=\"--force-confold\" dist-upgrade -q -y --force-yes\n",
-            "apt-get -y install awscli\n"
-        ]]}}
+        ]
       }
     },
 
     "InstanceSecurityGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
-        "GroupDescription" : "Enable SSH access via port 22",
+        "GroupDescription" : "Enable RDP access via port 3389",
         "Tags" : [ {"Key" : "Project", "Value" : "DsiCapstone"}],
         "SecurityGroupIngress" : [ {
           "Description" : "Custom CIDR set at creation",
           "IpProtocol" : "tcp",
-          "FromPort" : "22",
-          "ToPort" : "22",
-          "CidrIp" : { "Ref" : "SSHLocation"}
+          "FromPort" : "3389",
+          "ToPort" : "3389",
+          "CidrIp" : { "Ref" : "RDPLocation"}
         } ]
       }
     },
@@ -136,8 +130,8 @@
                 "Ref": "InstanceSecurityGroup"
             },
             "IpProtocol": "tcp",
-            "FromPort": "22",
-            "ToPort": "22",
+            "FromPort": "3389",
+            "ToPort": "3389",
             "CidrIp" : "199.111.0.0/16",
             "Description" : "UVA Campus"
         }
@@ -150,8 +144,8 @@
                 "Ref": "InstanceSecurityGroup"
             },
             "IpProtocol": "tcp",
-            "FromPort": "22",
-            "ToPort": "22",
+            "FromPort": "3389",
+            "ToPort": "3389",
             "CidrIp" : "128.143.0.0/16",
             "Description" : "UVA Campus"
         }
@@ -164,8 +158,8 @@
                 "Ref": "InstanceSecurityGroup"
             },
             "IpProtocol": "tcp",
-            "FromPort": "22",
-            "ToPort": "22",
+            "FromPort": "3389",
+            "ToPort": "3389",
             "CidrIp" : "137.54.0.0/16",
             "Description" : "UVA Campus"
         }
@@ -175,23 +169,23 @@
 
   "Outputs" : {
     "InstanceId" : {
-      "Description" : "InstanceId of the newly created EC2 instance",
+      "Description" : "InstanceId of your EC2 instance",
       "Value" : { "Ref" : "EC2Instance" }
     },
     "AZ" : {
-      "Description" : "Availability Zone of the newly created EC2 instance",
+      "Description" : "Availability Zone of your EC2 instance",
       "Value" : { "Fn::GetAtt" : [ "EC2Instance", "AvailabilityZone" ] }
     },
     "PublicDNS" : {
-      "Description" : "Public DNSName of the newly created EC2 instance",
+      "Description" : "Public DNSName of your EC2 instance",
       "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicDnsName" ] }
     },
     "PublicIP" : {
-      "Description" : "Public IP address of the newly created EC2 instance",
+      "Description" : "Public IP address of your EC2 instance",
       "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ] }
     },
     "S3BucketName" : {
-      "Description" : "Name of the S3 bucket created with this EC2 instance",
+      "Description" : "S3 bucket created with this EC2 instance",
       "Value" : { "Ref":"S3BucketName" }
     }
   }
