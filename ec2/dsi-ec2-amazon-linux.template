@@ -28,6 +28,16 @@
       "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x"
     },
 
+    "HDSize" : {
+      "Description" : "The size of the primary HD in GB.",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "3",
+      "Default": "40",
+      "AllowedPattern": "(\\d{1,3})",
+      "ConstraintDescription": "Must be an integer between 8 and 500GB"
+    },
+
     "S3BucketName" : {
       "Description" : "Give a unique name to your S3 bucket. Do not use spaces or special characters.",
       "Type": "String",
@@ -172,7 +182,6 @@
         "InstanceType" : { "Ref" : "InstanceType" },
         "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
         "IamInstanceProfile" : { "Ref" : "RootInstanceProfile" },
-        "DisableApiTermination" : "TRUE",
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
                       { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
@@ -184,7 +193,13 @@
             "#!/bin/bash -e\n",
             "yum -y update\n",
             "yum -y upgrade\n",
-        ]]}}
+        ]]}},
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/xvda",
+            "Ebs" : { "VolumeSize" : { "Ref" : "HDSize" } } 
+          }
+        ]
       }
     },
 

@@ -98,7 +98,6 @@
         "InstanceType" : { "Ref" : "InstanceType" },
         "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
         "IamInstanceProfile" : { "Ref" : "RootInstanceProfile" },
-        "DisableApiTermination" : "TRUE",
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : "ami-e3bb7399",
         "Tags" : [
