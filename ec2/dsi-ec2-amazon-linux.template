@@ -30,11 +30,10 @@
 
     "HDSize" : {
       "Description" : "The size of the primary HD in GB.",
-      "Type": "String",
-      "MinLength": "1",
-      "MaxLength": "3",
+      "Type": "Number",
+      "MinValue": "8",
+      "MaxValue": "500",
       "Default": "40",
-      "AllowedPattern": "(\\d{1,3})",
       "ConstraintDescription": "Must be an integer between 8 and 500GB"
     },
 

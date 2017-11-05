@@ -28,6 +28,15 @@
       "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x"
     },
 
+    "HDSize" : {
+      "Description" : "The size of the primary HD in GB.",
+      "Type": "Number",
+      "MinValue": "30",
+      "MaxValue": "500",
+      "Default": "40",
+      "ConstraintDescription": "Must be an integer between 30 and 500GB"
+    },
+
     "S3BucketName" : {
       "Description" : "Give a unique name to your S3 bucket. Do not use spaces or special characters.",
       "Type": "String",
@@ -100,6 +109,12 @@
         "IamInstanceProfile" : { "Ref" : "RootInstanceProfile" },
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : "ami-e3bb7399",
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/sda1",
+            "Ebs" : { "VolumeSize" : { "Ref" : "HDSize" } }
+          }
+        ],
         "Tags" : [
             {"Key" : "Project", "Value" : "DsiCapstone"},
             {"Key" : "Name", "Value" : "DSI-Instance"}
