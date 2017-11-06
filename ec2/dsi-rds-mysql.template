@@ -1,0 +1,130 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "This template creates a standalone MySQL RDS instance.",
+  "Parameters": {
+
+    "InstanceType" : {
+      "Description" : "RDS instance type",
+      "Type" : "String",
+      "Default" : "db.t2.small",
+      "AllowedValues" : [ "db.t2.small", "db.t2.medium", "db.t2.large", "db.m4.large", "db.m4.xlarge", "db.m4.2xlarge", "db.m4.4xlarge" ],
+      "ConstraintDescription" : "Must be a valid RDS instance type."
+    },
+
+    "DBUser": {
+      "Description": "The RDS database admin account username",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+    },
+
+    "DBPassword": {
+      "NoEcho": "true",
+      "Description": "The RDS database admin account password",
+      "Type": "String",
+      "MinLength": "8",
+      "MaxLength": "41",
+      "AllowedPattern": "[a-zA-Z0-9]*",
+      "ConstraintDescription": "must contain only alphanumeric characters."
+    },
+
+    "EC2SecurityGroup": {
+      "Description" : "Select an existing EC2 security group that will communicate with RDS.",
+      "Type": "AWS::EC2::SecurityGroup::Id",
+      "ConstraintDescription" : "Must be the ID of an existing EC2 security group."
+    },
+
+    "Storage" : {
+      "Description" : "The size of the primary HD in GB (between 20-500GB).",
+      "Type": "Number",
+      "MinValue": "5",
+      "MaxValue": "500",
+      "Default": "20",
+      "ConstraintDescription": "Must be an integer between 20 and 500GB"
+    }
+  },
+  "Resources": {
+    "myDB": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "AllocatedStorage": { "Ref": "Storage" },
+        "DBInstanceClass": "db.t2.small",
+        "Engine": "MySQL",
+        "PubliclyAccessible" : "TRUE",
+        "VPCSecurityGroups" : [{ "Fn::GetAtt" : [ "InstanceSecurityGroup" , "GroupId" ] }],
+        "MasterUsername": {
+          "Ref": "DBUser"
+        },
+        "MasterUserPassword": {
+          "Ref": "DBPassword"
+        }
+      }
+    },
+
+    "InstanceSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable MySQL access via port 3306",
+        "SecurityGroupIngress" : [ {
+          "Description" : "Allow EC2 to reach RDS",
+          "IpProtocol" : "tcp",
+          "FromPort" : "3306",
+          "ToPort" : "3306",
+          "SourceSecurityGroupId" : { "Ref" : "EC2SecurityGroup" }
+        } ]
+      }
+    },
+
+    "UVAIngress1": {
+       "Type": "AWS::EC2::SecurityGroupIngress",
+       "Properties": {
+           "GroupName": {
+               "Ref": "InstanceSecurityGroup"
+           },
+           "IpProtocol": "tcp",
+           "FromPort": "3306",
+           "ToPort": "3306",
+           "CidrIp" : "199.111.0.0/16",
+           "Description" : "UVA Campus"
+       }
+    },
+    "UVAIngress2": {
+       "Type": "AWS::EC2::SecurityGroupIngress",
+       "Properties": {
+           "GroupName": {
+               "Ref": "InstanceSecurityGroup"
+           },
+           "IpProtocol": "tcp",
+           "FromPort": "3306",
+           "ToPort": "3306",
+           "CidrIp" : "128.143.0.0/16",
+           "Description" : "UVA Campus"
+       }
+    },
+    "UVAIngress3": {
+       "Type": "AWS::EC2::SecurityGroupIngress",
+       "Properties": {
+           "GroupName": {
+               "Ref": "InstanceSecurityGroup"
+           },
+           "IpProtocol": "tcp",
+           "FromPort": "3306",
+           "ToPort": "3306",
+           "CidrIp" : "137.54.0.0/16",
+           "Description" : "UVA Campus"
+       }
+    }
+  },
+  "Outputs" : {
+    "Endpoint" : {
+      "Description" : "Endpoint of the created RDS instance",
+      "Value" : { "Fn::GetAtt" : [ "myDB", "Endpoint.Address" ] } 
+    },
+    "Port" : {
+      "Description" : "TCP port of the created RDS instance",
+      "Value" : { "Fn::GetAtt" : [ "myDB", "Endpoint.Port" ] } 
+    }
+  }
+}

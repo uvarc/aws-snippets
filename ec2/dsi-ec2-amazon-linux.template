@@ -3,6 +3,28 @@
 
   "Description" : "Creates an Amazon EC2 instance running the Amazon Linux AMI with an EIP attached. This stack also creates an EC2 security group for the instance for SSH access, including CIDR blocks for access from UVA Grounds.",
 
+  "Metadata" : {
+    "AWS::CloudFormation::Interface" : {
+      "ParameterGroups" : [
+        {
+          "Label" : { "default" : "Amazon EC2 Configuration" },
+          "Parameters" : [ "InstanceType", "KeyName", "SSHLocation", "HDSize" ]
+        },
+        {
+          "Label" : { "default":"Amazon S3 Configuration" },
+          "Parameters" : [ "S3BucketName" ]
+        }
+      ],
+      "ParameterLabels" : {
+        "InstanceType" : { "default" : "Instance Type" },
+        "KeyName" : { "default" : "SSH key" },
+        "SSHLocation" : { "default" : "SSH Access" },
+        "HDSize" : { "default" : "Volume Size (GB)" },
+        "S3BucketName" : { "default" : "Create S3 bucket" }
+      }
+    }
+  },
+
   "Parameters" : {
     "KeyName": {
       "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",

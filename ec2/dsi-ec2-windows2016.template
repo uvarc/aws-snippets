@@ -3,6 +3,28 @@
 
   "Description" : "This template creates a Windows Server 2016 EC2 instance with a security group and Elastic IP. Includes UVA Grounds CIDR blocks for decrypting your administrator password.",
 
+  "Metadata" : {
+    "AWS::CloudFormation::Interface" : {
+      "ParameterGroups" : [
+        {
+          "Label" : { "default" : "Amazon EC2 Configuration" },
+          "Parameters" : [ "InstanceType", "KeyName", "RDPLocation", "HDSize" ]
+        },
+        {
+          "Label" : { "default":"Amazon S3 Configuration" },
+          "Parameters" : [ "S3BucketName" ]
+        }
+      ],
+      "ParameterLabels" : {
+        "InstanceType" : { "default" : "Instance Type" },
+        "KeyName" : { "default" : "SSH key" },
+        "RDPLocation" : { "default" : "RDP Access" },
+        "HDSize" : { "default" : "Volume Size (GB)" },
+        "S3BucketName" : { "default" : "Create S3 bucket" }
+      }
+    }
+  },
+
   "Parameters" : {
     "KeyName": {
       "Description" : "Name of an existing EC2 KeyPair to decrypt the admin password.",
@@ -19,7 +41,7 @@
     },
 
     "RDPLocation" : {
-      "Description" : "The IP address range that can be used to RDP to the EC2 instances. Do not set this to 0.0.0.0/0. Instead, look up your current IP and add /32 to it.",
+      "Description" : "The IP address range that can be used to RDP to the EC2 instance. Do not set this to 0.0.0.0/0. Instead, look up your current IP and add /32 to it.",
       "Type": "String",
       "MinLength": "9",
       "MaxLength": "18",
