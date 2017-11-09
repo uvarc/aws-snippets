@@ -211,8 +211,9 @@
         ],
         "UserData": {"Fn::Base64": {"Fn::Join" : ["", [
             "#!/bin/bash -e\n",
-            "yum -y update\n",
-            "yum -y upgrade\n",
+            "export DEBIAN_FRONTEND=noninteractive\n",
+            "apt-get update && apt-get -o Dpkg::Options::=\"--force-confold\" upgrade -q -y --force-yes && apt-get -o Dpkg::Options::=\"--force-confold\" dist-upgrade -q -y --force-yes\n",
+            "apt-get -y install awscli\n"
         ]]}},
         "BlockDeviceMappings" : [
           {
