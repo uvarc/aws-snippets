@@ -1,6 +1,25 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "This template creates a standalone MySQL RDS instance.",
+
+  "Metadata" : {
+    "AWS::CloudFormation::Interface" : {
+      "ParameterGroups" : [
+        {
+          "Label" : { "default" : "Amazon RDS Configuration" },
+          "Parameters" : [ "InstanceType", "Storage", "EC2SecurityGroup", "DBUser", "DBPassword" ]
+        }
+      ],
+      "ParameterLabels" : {
+        "InstanceType" : { "default" : "Instance Type" },
+        "Storage" : { "default" : "Storage Size (GB)" },
+        "EC2SecurityGroup" : { "default" : "EC2 access to RDS" },
+        "DBUser" : { "default" : "Database User" },
+        "DBPassword" : { "default" : "Database Password" }
+      }
+    }
+  },
+
   "Parameters": {
 
     "InstanceType" : {

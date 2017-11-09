@@ -1,0 +1,307 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Creates an Amazon EC2 instance running the Amazon Linux DEEP LEARNING AMI with an EIP attached. This stack also creates an EC2 security group for the instance for SSH access, including CIDR blocks for access from UVA Grounds.",
+
+  "Metadata" : {
+    "AWS::CloudFormation::Interface" : {
+      "ParameterGroups" : [
+        {
+          "Label" : { "default" : "Amazon EC2 Configuration" },
+          "Parameters" : [ "InstanceType", "KeyName", "SSHLocation", "HDSize" ]
+        },
+        {
+          "Label" : { "default":"Amazon S3 Configuration" },
+          "Parameters" : [ "S3BucketName" ]
+        }
+      ],
+      "ParameterLabels" : {
+        "InstanceType" : { "default" : "Instance Type" },
+        "KeyName" : { "default" : "SSH key" },
+        "SSHLocation" : { "default" : "SSH Access" },
+        "HDSize" : { "default" : "Volume Size (GB)" },
+        "S3BucketName" : { "default" : "Create S3 bucket" }
+      }
+    }
+  },
+
+  "Parameters" : {
+    "KeyName": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription" : "Must be the name of an existing EC2 KeyPair."
+    },
+
+    "InstanceType" : {
+      "Description" : "EC2 instance type",
+      "Type" : "String",
+      "Default" : "t2.small",
+      "AllowedValues" : [ "t2.nano", "t2.micro", "t2.small", "t2.medium", "t2.large", "m3.medium", "m3.large", "m3.xlarge", "m3.2xlarge", "m4.large", "m4.xlarge", "m4.2xlarge", "c3.large", "c3.xlarge", "c3.2xlarge", "c4.large", "c4.xlarge", "c4.2xlarge", "r3.large", "r3.xlarge", "r3.2xlarge", "d2.xlarge", "d2.2xlarge", "d2.4xlarge"],
+      "ConstraintDescription" : "Must be a valid EC2 instance type."
+    },
+
+    "SSHLocation" : {
+      "Description" : "The IP address range that can be used to SSH to the EC2 instances. Do not set this to 0.0.0.0/0. Instead, look up your current IP and add /32 to it.",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "254.254.254.254/32",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "Must be a valid IP CIDR range of the form x.x.x.x/x"
+    },
+
+    "HDSize" : {
+      "Description" : "The size of the primary HD in GB.",
+      "Type": "Number",
+      "MinValue": "8",
+      "MaxValue": "500",
+      "Default": "40",
+      "ConstraintDescription": "Must be an integer between 8 and 500GB"
+    },
+
+    "S3BucketName" : {
+      "Description" : "Give a unique name to your S3 bucket. Do not use spaces or special characters.",
+      "Type": "String",
+      "MinLength": "6",
+      "MaxLength": "20"
+    }
+  },
+
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "t1.micro"    : { "Arch" : "PV64"   },
+      "t2.nano"     : { "Arch" : "HVM64"  },
+      "t2.micro"    : { "Arch" : "HVM64"  },
+      "t2.small"    : { "Arch" : "HVM64"  },
+      "t2.medium"   : { "Arch" : "HVM64"  },
+      "t2.large"    : { "Arch" : "HVM64"  },
+      "m3.medium"   : { "Arch" : "HVM64"  },
+      "m3.large"    : { "Arch" : "HVM64"  },
+      "m3.xlarge"   : { "Arch" : "HVM64"  },
+      "m3.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.large"    : { "Arch" : "HVM64"  },
+      "m4.xlarge"   : { "Arch" : "HVM64"  },
+      "m4.2xlarge"  : { "Arch" : "HVM64"  },
+      "m4.4xlarge"  : { "Arch" : "HVM64"  },
+      "c3.large"    : { "Arch" : "HVM64"  },
+      "c3.xlarge"   : { "Arch" : "HVM64"  },
+      "c3.2xlarge"  : { "Arch" : "HVM64"  },
+      "c3.4xlarge"  : { "Arch" : "HVM64"  },
+      "c4.large"    : { "Arch" : "HVM64"  },
+      "c4.xlarge"   : { "Arch" : "HVM64"  },
+      "c4.2xlarge"  : { "Arch" : "HVM64"  },
+      "c4.4xlarge"  : { "Arch" : "HVM64"  },
+      "r3.large"    : { "Arch" : "HVM64"  },
+      "r3.xlarge"   : { "Arch" : "HVM64"  },
+      "r3.2xlarge"  : { "Arch" : "HVM64"  },
+      "r3.4xlarge"  : { "Arch" : "HVM64"  },
+      "d2.xlarge"   : { "Arch" : "HVM64"  },
+      "d2.2xlarge"  : { "Arch" : "HVM64"  },
+      "d2.4xlarge"  : { "Arch" : "HVM64"  }
+    },
+
+    "AWSInstanceType2NATArch" : {
+      "t1.micro"    : { "Arch" : "NATPV64"   },
+      "t2.nano"     : { "Arch" : "NATHVM64"  },
+      "t2.micro"    : { "Arch" : "NATHVM64"  },
+      "t2.small"    : { "Arch" : "NATHVM64"  },
+      "t2.medium"   : { "Arch" : "NATHVM64"  },
+      "t2.large"    : { "Arch" : "NATHVM64"  },
+      "m3.medium"   : { "Arch" : "NATHVM64"  },
+      "m3.large"    : { "Arch" : "NATHVM64"  },
+      "m3.xlarge"   : { "Arch" : "NATHVM64"  },
+      "m3.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "m4.large"    : { "Arch" : "NATHVM64"  },
+      "m4.xlarge"   : { "Arch" : "NATHVM64"  },
+      "m4.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "m4.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "c3.large"    : { "Arch" : "NATHVM64"  },
+      "c3.xlarge"   : { "Arch" : "NATHVM64"  },
+      "c3.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "c3.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "c4.large"    : { "Arch" : "NATHVM64"  },
+      "c4.xlarge"   : { "Arch" : "NATHVM64"  },
+      "c4.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "c4.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "r3.large"    : { "Arch" : "NATHVM64"  },
+      "r3.xlarge"   : { "Arch" : "NATHVM64"  },
+      "r3.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "r3.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "d2.xlarge"   : { "Arch" : "NATHVM64"  },
+      "d2.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "d2.4xlarge"  : { "Arch" : "NATHVM64"  }
+    },
+
+    "AWSRegionArch2AMI" : {
+      "us-east-1"        : {"PV64" : "ami-7a3dd76c", "HVM64" : "ami-0b33d91d", "HVMG2" : "NOT_SUPPORTED"},
+      "us-east-2"        : {"PV64" : "NOT_SUPPORTED", "HVM64" : "ami-c55673a0", "HVMG2" : "NOT_SUPPORTED"},
+      "us-west-2"        : {"PV64" : "ami-7f77b31f", "HVM64" : "ami-7172b611", "HVMG2" : "ami-5c9b6124"},
+      "us-west-1"        : {"PV64" : "ami-a2490dc2", "HVM64" : "ami-31490d51", "HVMG2" : "ami-7291a112"}
+    }
+
+  },
+
+  "Resources" : {
+
+    "S3Role": {
+       "Type": "AWS::IAM::Role",
+       "Properties": {
+          "AssumeRolePolicyDocument": {
+             "Version" : "2012-10-17",
+             "Statement": [ {
+                "Effect": "Allow",
+                "Principal": {
+                   "Service": [ "ec2.amazonaws.com" ]
+                },
+                "Action": [ "sts:AssumeRole" ]
+             } ]
+          },
+          "Path": "/",
+          "Policies": [ {
+             "PolicyName": "s3owner",
+             "PolicyDocument": {
+                "Version" : "2012-10-17",
+                "Statement": [ {
+                   "Effect": "Allow",
+                   "Action": "*",
+                   "Resource": "arn:aws:s3:::*"
+                } ]
+             }
+           } ]
+        }
+    },
+
+    "RootInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+          "Path": "/",
+          "Roles": [ {
+             "Ref": "S3Role"
+          } ]
+       }
+    },
+
+    "S3Bucket": {
+        "Type": "AWS::S3::Bucket",
+        "Properties": {
+            "BucketName" : {"Ref":"S3BucketName"},
+            "VersioningConfiguration": { "Status": "Enabled" }
+        },
+        "DeletionPolicy": "Retain"
+    },
+
+    "AttachEIP" : {
+      "Type" : "AWS::EC2::EIP",
+      "Properties" : {
+         "InstanceId" : { "Ref" : "EC2Instance" }
+      }
+    },
+
+    "EC2Instance" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType" : { "Ref" : "InstanceType" },
+        "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
+        "IamInstanceProfile" : { "Ref" : "RootInstanceProfile" },
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : "ami-f2b87288",
+        "Tags" : [ 
+            {"Key" : "Project", "Value" : "DsiCapstone"},
+            {"Key" : "Name", "Value" : "DSI-Instance"}
+        ],
+        "UserData": {"Fn::Base64": {"Fn::Join" : ["", [
+            "#!/bin/bash -e\n",
+            "yum -y update\n",
+            "yum -y upgrade\n",
+        ]]}},
+        "BlockDeviceMappings" : [
+          {
+            "DeviceName" : "/dev/xvda",
+            "Ebs" : { "VolumeSize" : { "Ref" : "HDSize" } } 
+          }
+        ]
+      }
+    },
+
+    "InstanceSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable SSH access via port 22",
+        "Tags" : [ {"Key" : "Project", "Value" : "DsiCapstone"}],
+        "SecurityGroupIngress" : [ {
+          "Description" : "Custom CIDR set at creation",
+          "IpProtocol" : "tcp",
+          "FromPort" : "22",
+          "ToPort" : "22",
+          "CidrIp" : { "Ref" : "SSHLocation"}
+        } ]
+      }
+    },
+
+    "UVAIngress1": {
+        "Type": "AWS::EC2::SecurityGroupIngress",
+        "Properties": {
+            "GroupName": {
+                "Ref": "InstanceSecurityGroup"
+            },
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp" : "199.111.0.0/16",
+            "Description" : "UVA Campus"
+        }
+     },
+
+    "UVAIngress2": {
+        "Type": "AWS::EC2::SecurityGroupIngress",
+        "Properties": {
+            "GroupName": {
+                "Ref": "InstanceSecurityGroup"
+            },
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp" : "128.143.0.0/16",
+            "Description" : "UVA Campus"
+        }
+     },
+
+    "UVAIngress3": {
+        "Type": "AWS::EC2::SecurityGroupIngress",
+        "Properties": {
+            "GroupName": {
+                "Ref": "InstanceSecurityGroup"
+            },
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp" : "137.54.0.0/16",
+            "Description" : "UVA Campus"
+        }
+     }
+
+  },
+
+  "Outputs" : {
+    "InstanceId" : {
+      "Description" : "InstanceId of the newly created EC2 instance",
+      "Value" : { "Ref" : "EC2Instance" }
+    },
+    "AZ" : {
+      "Description" : "Availability Zone of the newly created EC2 instance",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "AvailabilityZone" ] }
+    },
+    "PublicDNS" : {
+      "Description" : "Public DNSName of the newly created EC2 instance",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicDnsName" ] }
+    },
+    "PublicIP" : {
+      "Description" : "Public IP address of the newly created EC2 instance",
+      "Value" : { "Fn::GetAtt" : [ "EC2Instance", "PublicIp" ] }
+    },
+    "S3BucketName" : {
+      "Description" : "Name of the S3 bucket created with this EC2 instance",
+      "Value" : { "Ref":"S3BucketName" }
+    }
+  }
+}
