@@ -130,7 +130,7 @@
         "SecurityGroups" : [ { "Ref" : "InstanceSecurityGroup" } ],
         "IamInstanceProfile" : { "Ref" : "RootInstanceProfile" },
         "KeyName" : { "Ref" : "KeyName" },
-        "ImageId" : "ami-37bb714d",
+        "ImageId" : "ami-5af95d20",
         "Tags" : [ 
             {"Key" : "Project", "Value" : "DsiCapstone"},
             {"Key" : "Name", "Value" : "DSI-Instance"}
